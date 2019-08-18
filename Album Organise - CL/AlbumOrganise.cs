@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Album_Organise___CL
 {
     class AlbumOrganise
     {
-        List<Album> albumList = new List<Album>();
+        static List<Album> albumList = new List<Album>();
 
         static void Main(string[] args)
         {
@@ -30,7 +32,8 @@ namespace Album_Organise___CL
             Console.WriteLine("2: Search Album");
             Console.WriteLine("3: Add Album");
             Console.WriteLine("4: Delete Album");
-            Console.WriteLine("5: Quit\n");
+            Console.WriteLine("5: Quit");
+            Console.WriteLine("6: Show Albums (Debug)\n");
             Console.WriteLine("Select An Option: ");
         }
 
@@ -57,6 +60,9 @@ namespace Album_Organise___CL
                     case 5:
                         ExitProgram(false);
                         break;
+                    case 6:
+                        DisplayAllAlbums();
+                        break;                 
                     default:
                         Console.WriteLine("Input Not Recognised: Please Enter Again");
                         Initialise();
@@ -66,6 +72,7 @@ namespace Album_Organise___CL
             catch (Exception)
             {
                 Console.WriteLine("\nMalformed Input: Please Enter Again");
+                Initialise();
             }
         }
 
@@ -86,12 +93,71 @@ namespace Album_Organise___CL
 
         static void AddAlbum()
         {
-
+            Console.Clear();
+            string ArtistName = InputArtist();
+            string AlbumName = InputAlbum();
+            albumList.Add(new Album(ArtistName, AlbumName));
+            albumList.Sort();
+            SaveJSON();
+            Initialise();
         }
         
+        static string InputArtist()
+        {
+            Console.Clear();
+            string inputArtist;
+            Console.WriteLine("Type In The Name Of The Artist: ");
+            inputArtist = Console.ReadLine();
+            while(inputArtist == "" || inputArtist == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Type In The Name Of The Artist: \n");
+                Console.WriteLine("Previous Input Erroneous: Please Enter Again");
+                inputArtist = Console.ReadLine();
+            }
+            return inputArtist;
+            
+        }
+
+        static string InputAlbum()
+        {
+            Console.Clear();
+            string inputAlbum;
+            Console.WriteLine("Type In The Name Of The Album: ");
+            inputAlbum = Console.ReadLine();
+            while(inputAlbum == "" || inputAlbum == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Type In The Name Of The Album: \n");
+                Console.WriteLine("Previous Input Erroneous: Please Enter Again");
+                inputAlbum = Console.ReadLine();
+            }
+            return inputAlbum;
+        }
+
         static void DeleteAlbum()
         {
+            Console.Clear();
+            bool ArtistRemoved = false;
+            string ArtistName = InputArtist();
+            string AlbumName = InputAlbum();
+            foreach(Album album in albumList)
+            {
+                if(album.ArtistName == ArtistName && album.AlbumName == AlbumName)
+                {
+                    albumList.Remove(album);
+                    ArtistRemoved = true;
+                } 
+            }
 
+            if (!ArtistRemoved)
+            {
+                Console.WriteLine("Not Found!");
+            } 
+            else
+            {
+                Console.WriteLine("Removed!");
+            }
         }
 
         static void ExitProgram(bool InputError)
@@ -111,6 +177,7 @@ namespace Album_Organise___CL
                 case "yes":
                 case "Y":
                 case "y":
+                    SaveJSON();
                     Environment.Exit(0);
                     break;
                 case "NO":
@@ -127,9 +194,30 @@ namespace Album_Organise___CL
 
         }
 
+        static void SaveJSON()
+        {
+            albumList.Sort();
+            string jsonSave = JsonConvert.SerializeObject(albumList);
+            //var path = "Test";
+            File.WriteAllText(@"Albums.json", jsonSave);
+            Console.ReadKey();
+        }
+
         static void LoadAlbums()
         {
             //Add in JSON
+            string jsonLoad = File.ReadAllText(@"Albums.Json");
+            albumList = JsonConvert.DeserializeObject<List<Album>>(jsonLoad);
+        }
+
+        static void DisplayAllAlbums()
+        {
+            foreach(Album alb in albumList)
+            {
+                Console.WriteLine(alb.AlbumName);
+            }
+            Console.ReadKey();
+            Initialise();
         }
     }
 }
