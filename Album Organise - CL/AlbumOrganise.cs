@@ -8,8 +8,11 @@ namespace Album_Organise___CL
 {
     class AlbumOrganise
     {
+        List<Album> albumList = new List<Album>();
+
         static void Main(string[] args)
         {
+            LoadAlbums();
             Initialise();
         }
 
@@ -25,10 +28,10 @@ namespace Album_Organise___CL
             Console.WriteLine("Album Organisation Tool\n");
             Console.WriteLine("1: Search Artist");
             Console.WriteLine("2: Search Album");
-            Console.WriteLine("3: Add Artist");
-            Console.WriteLine("4: Delete Artist");
+            Console.WriteLine("3: Add Album");
+            Console.WriteLine("4: Delete Album");
             Console.WriteLine("5: Quit\n");
-            Console.WriteLine("Select An Option");
+            Console.WriteLine("Select An Option: ");
         }
 
         static void UserInput()
@@ -40,17 +43,23 @@ namespace Album_Organise___CL
                 switch (userInput)
                 {
                     case 1:
+                        SearchArtist();
                         break;
                     case 2:
+                        SearchAlbum();
                         break;
                     case 3:
+                        AddAlbum();
                         break;
                     case 4:
+                        DeleteAlbum();
                         break;
                     case 5:
                         ExitProgram(false);
                         break;
                     default:
+                        Console.WriteLine("Input Not Recognised: Please Enter Again");
+                        Initialise();
                         break;
                 }
             }
@@ -58,6 +67,31 @@ namespace Album_Organise___CL
             {
                 Console.WriteLine("\nMalformed Input: Please Enter Again");
             }
+        }
+
+        static void SearchArtist()
+        {
+            Console.Clear();
+            Console.WriteLine("Type In The Name Of An Artist:");
+            string input = Console.ReadLine();
+            Console.WriteLine("Click Any Key To Return To Menu");
+            Console.ReadKey();
+            Initialise();
+        }
+
+        static void SearchAlbum()
+        {
+
+        }
+
+        static void AddAlbum()
+        {
+
+        }
+        
+        static void DeleteAlbum()
+        {
+
         }
 
         static void ExitProgram(bool InputError)
@@ -91,6 +125,11 @@ namespace Album_Organise___CL
                     break;
             }
 
+        }
+
+        static void LoadAlbums()
+        {
+            //Add in JSON
         }
     }
 }
