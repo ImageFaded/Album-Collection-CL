@@ -15,7 +15,6 @@ namespace Album_Organise___CL
         static void Main(string[] args)
         {
             LoadAlbums();
-            SortAlbums();
             Initialise();
         }
 
@@ -33,8 +32,8 @@ namespace Album_Organise___CL
             Console.WriteLine("2: Search Album");
             Console.WriteLine("3: Add Album");
             Console.WriteLine("4: Delete Album");
-            Console.WriteLine("5: Quit");
-            Console.WriteLine("6: Show Albums (Debug)\n");
+            Console.WriteLine("5: Show Albums");
+            Console.WriteLine("6: Quit\n");
             Console.WriteLine("Select An Option: ");
         }
 
@@ -59,10 +58,10 @@ namespace Album_Organise___CL
                         DeleteAlbum();
                         break;
                     case 5:
-                        ExitProgram(false);
+                        DisplayAllAlbums();
                         break;
                     case 6:
-                        DisplayAllAlbums();
+                        ExitProgram(false);
                         break;                 
                     default:
                         Console.WriteLine("Input Not Recognised: Please Enter Again");
@@ -87,24 +86,31 @@ namespace Album_Organise___CL
             {
                 if(alb.ArtistName == input)
                 {
-                    Console.WriteLine("Artist: " + alb.ArtistName);
-                    Console.WriteLine("Album: " + alb.AlbumName + "\n");
+                    DisplayInformation(alb);
                     albumCount++;
                 }
             }
-            Console.WriteLine("Album Count: " + albumCount);
-            Console.WriteLine("Click Any Key To Return To Menu");
-            Console.ReadKey();
+            MenuPrompt();
             Initialise();
         }
 
         static void SearchAlbum()
         {
-
+            Console.Clear();
+            Console.WriteLine("Type In The Name Of An Album: ");
+            string input = Console.ReadLine();
+            foreach(Album alb in albumList)
+            {
+                if(alb.AlbumName == input)
+                {
+                    DisplayInformation(alb);
+                }
+            }
         }
 
         static void AddAlbum()
         {
+            //
             Console.Clear();
             string ArtistName = InputArtist();
             string AlbumName = InputAlbum();
@@ -112,6 +118,7 @@ namespace Album_Organise___CL
             SortAlbums();
             SaveJSON();
             Initialise();
+            //
         }
         
         static string InputArtist()
@@ -213,19 +220,31 @@ namespace Album_Organise___CL
         {
             string jsonSave = JsonConvert.SerializeObject(albumList);
             //var path = "Test";
-            File.WriteAllText(@"Albums.json", jsonSave);
+            File.WriteAllText(ReturnLocation(), jsonSave);
         }
 
         static void LoadAlbums()
         {
             //Add in JSON
-            string jsonLoad = File.ReadAllText(@"Albums.Json");
+            if (!File.Exists(ReturnLocation()))
+            {
+                File.Create(ReturnLocation());
+                string jsonSave = JsonConvert.SerializeObject(albumList);
+                File.WriteAllText(ReturnLocation(), jsonSave);
+            }
+            string jsonLoad = File.ReadAllText(ReturnLocation());
             albumList = JsonConvert.DeserializeObject<List<Album>>(jsonLoad);
+            SortAlbums();
+        }
+
+        static string ReturnLocation()
+        {
+            return @"Albums.Json";
         }
 
         static void DisplayAllAlbums()
         {
-            Console.Write("\n");
+            Console.Clear();
             foreach(Album alb in albumList)
             {
                 if(alb.AlbumName != null)
@@ -235,13 +254,29 @@ namespace Album_Organise___CL
                 }
                  
             }
-            Console.ReadKey();
+            MenuPrompt();
             Initialise();
         }
 
         static void SortAlbums()
         {
-            albumList.Sort(delegate (Album a1, Album a2) { return a1.ArtistName.CompareTo(a2.ArtistName); });
+            if(albumList.Count >= 4)
+            {
+                albumList.Sort(delegate (Album a1, Album a2) { return a1.ArtistName.CompareTo(a2.ArtistName); });
+            }
+        }
+
+        static void DisplayInformation(Album alb)
+        {
+            Console.WriteLine("Artist: " + alb.ArtistName);
+            Console.WriteLine("Album: " + alb.AlbumName + "\n");
+        }
+
+        static void MenuPrompt()
+        {
+            Console.WriteLine("\nClick Any Key To Return To Menu");
+            Console.ReadKey();
+            Initialise();
         }
     }
 }

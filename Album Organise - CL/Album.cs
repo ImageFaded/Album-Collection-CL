@@ -11,10 +11,10 @@ namespace Album_Organise___CL
         public string ArtistName;
         public string AlbumName;
         
-        public Album(string ArtistInput, string AlbumInput)
+        public Album(string ArtistName, string AlbumName)
         {
-            ArtistName = ArtistInput;
-            AlbumName = AlbumInput;
+            this.ArtistName = ArtistName;
+            this.AlbumName = AlbumName;
         }        
     }
 }
