@@ -1,27 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Album_Organise___CL
+﻿namespace Album_Organise___CL
 {
-    /*class Album
-    {
-        public string ArtistName;
-        public string AlbumName;
-        
-        public Album(string ArtistName, string AlbumName)
-        {
-            this.ArtistName = ArtistName;
-            this.AlbumName = AlbumName;
-        }        
-    }*/
-
+    //Creates album with variable name
     class Album
     {
+        //Variable for album name
         public string AlbumName;
 
+        //On creation, set input variables to object variables
         public Album(string AlbumName)
         {
             this.AlbumName = AlbumName;
