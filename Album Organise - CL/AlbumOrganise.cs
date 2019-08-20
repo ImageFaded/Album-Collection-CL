@@ -10,7 +10,7 @@ namespace Album_Organise___CL
 {
     class AlbumOrganise
     {
-        static List<Album> albumList = new List<Album>();
+        static List<Artist> artistList = new List<Artist>();
 
         static void Main(string[] args)
         {
@@ -32,7 +32,7 @@ namespace Album_Organise___CL
             Console.WriteLine("2: Search Album");
             Console.WriteLine("3: Add Album");
             Console.WriteLine("4: Delete Album");
-            Console.WriteLine("5: Show Albums");
+            Console.WriteLine("5: Show Artists");
             Console.WriteLine("6: Quit\n");
             Console.WriteLine("Select An Option: ");
         }
@@ -58,11 +58,11 @@ namespace Album_Organise___CL
                         DeleteAlbum();
                         break;
                     case 5:
-                        DisplayAllAlbums();
+                        DisplayAllArtists();
                         break;
                     case 6:
                         ExitProgram(false);
-                        break;                 
+                        break;                
                     default:
                         Console.WriteLine("Input Not Recognised: Please Enter Again");
                         Initialise();
@@ -79,15 +79,14 @@ namespace Album_Organise___CL
         static void SearchArtist()
         {
             Console.Clear();
-            int albumCount = 0;
-            Console.WriteLine("Type In The Name Of An Artist:");
+            //int albumCount = 0;
+            Console.WriteLine("Type In The Name Of An Artist: ");
             string input = Console.ReadLine();
-            foreach(Album alb in albumList)
+            foreach(Artist art in artistList)
             {
-                if(alb.ArtistName == input)
+                if(art.ArtistName == input)
                 {
-                    DisplayInformation(alb);
-                    albumCount++;
+                    DisplayInformation(art,null);
                 }
             }
             MenuPrompt();
@@ -98,27 +97,53 @@ namespace Album_Organise___CL
         {
             Console.Clear();
             Console.WriteLine("Type In The Name Of An Album: ");
-            string input = Console.ReadLine();
-            foreach(Album alb in albumList)
+            string input = Console.ReadLine();            
+            foreach(Artist art in artistList)
             {
-                if(alb.AlbumName == input)
+                if(art.ArtistName != null)
                 {
-                    DisplayInformation(alb);
+                    foreach (Album alb in art.ReturnAlbums())
+                    {
+                        if (alb.AlbumName == input)
+                        {
+                            DisplayInformation(art, alb);
+                        }
+                    }
                 }
             }
+            MenuPrompt();
+            Initialise();
         }
 
         static void AddAlbum()
         {
-            //
             Console.Clear();
+            Artist artistStore = null;
+            bool inList = false;
             string ArtistName = InputArtist();
             string AlbumName = InputAlbum();
-            albumList.Add(new Album(ArtistName, AlbumName));
-            SortAlbums();
+            foreach(Artist art in artistList)
+            {
+                if(art.ArtistName == ArtistName)
+                {
+                    artistStore = art;
+                    inList = true;
+                    break;
+                }
+            }
+
+            if (inList)
+            {
+                artistStore.AddArtist(new Album(AlbumName));
+            }
+            else
+            {
+                artistList.Add(new Artist(ArtistName, new List<Album> { new Album(AlbumName) }));
+            }
+
+            SortArtists();
             SaveJSON();
             Initialise();
-            //
         }
         
         static string InputArtist()
@@ -157,16 +182,26 @@ namespace Album_Organise___CL
         static void DeleteAlbum()
         {
             Console.Clear();
+            Artist tempArt = null;
+            Album tempAlb = null;
             bool ArtistRemoved = false;
             string ArtistName = InputArtist();
             string AlbumName = InputAlbum();
-            foreach(Album album in albumList)
+
+            foreach(Artist art in artistList)
             {
-                if(album.ArtistName == ArtistName && album.AlbumName == AlbumName)
+                if(art.ArtistName != null)
                 {
-                    albumList.Remove(album);
-                    ArtistRemoved = true;
-                } 
+                    foreach (Album alb in art.ReturnAlbums())
+                    {
+                        if (art.ArtistName == ArtistName && alb.AlbumName == AlbumName)
+                        {
+                            tempArt = art;
+                            tempAlb = alb;
+                            ArtistRemoved = true;
+                        }
+                    }
+                }
             }
 
             if (!ArtistRemoved)
@@ -175,8 +210,14 @@ namespace Album_Organise___CL
             } 
             else
             {
+                tempArt.RemoveAlbum(tempAlb);
+                if(tempArt.ReturnAlbums().Count() == 0)
+                {
+                    artistList.Remove(tempArt);
+                }
                 Console.WriteLine("\nRemoved!");
             }
+            SaveJSON();
             Console.ReadKey();
             Initialise();
 
@@ -218,58 +259,69 @@ namespace Album_Organise___CL
 
         static void SaveJSON()
         {
-            string jsonSave = JsonConvert.SerializeObject(albumList);
-            //var path = "Test";
+            string jsonSave = JsonConvert.SerializeObject(artistList);
             File.WriteAllText(ReturnLocation(), jsonSave);
         }
 
         static void LoadAlbums()
         {
-            //Add in JSON
             if (!File.Exists(ReturnLocation()))
             {
                 File.Create(ReturnLocation());
-                string jsonSave = JsonConvert.SerializeObject(albumList);
+                string jsonSave = JsonConvert.SerializeObject(artistList);
                 File.WriteAllText(ReturnLocation(), jsonSave);
             }
             string jsonLoad = File.ReadAllText(ReturnLocation());
-            albumList = JsonConvert.DeserializeObject<List<Album>>(jsonLoad);
-            SortAlbums();
+            artistList = JsonConvert.DeserializeObject<List<Artist>>(jsonLoad);
+            SortArtists();
         }
 
         static string ReturnLocation()
         {
-            return @"Albums.Json";
+            return @"Artists.Json";
         }
 
-        static void DisplayAllAlbums()
+        static void DisplayAllArtists()
         {
             Console.Clear();
-            foreach(Album alb in albumList)
+            foreach(Artist art in artistList)
             {
-                if(alb.AlbumName != null)
+                if (art.ArtistName != null)
                 {
-                    Console.WriteLine("Artist Name: " + alb.ArtistName);
-                    Console.WriteLine("Album Name: " + alb.AlbumName + "\n");
+                    Console.WriteLine("Artist Name: " + art.ArtistName);
+                    foreach(Album album in art.ReturnAlbums())
+                    {
+                        Console.WriteLine(" Album Name: " + album.AlbumName);
+                    }
                 }
-                 
             }
             MenuPrompt();
             Initialise();
         }
 
-        static void SortAlbums()
+        static void SortArtists()
         {
-            if(albumList.Count >= 4)
+            if(artistList.Count >= 5)
             {
-                albumList.Sort(delegate (Album a1, Album a2) { return a1.ArtistName.CompareTo(a2.ArtistName); });
+                artistList.Sort(delegate (Artist a1, Artist a2) { return a1.ArtistName.CompareTo(a2.ArtistName); });
             }
         }
 
-        static void DisplayInformation(Album alb)
+        static void DisplayInformation(Artist art, Album album)
         {
-            Console.WriteLine("Artist: " + alb.ArtistName);
-            Console.WriteLine("Album: " + alb.AlbumName + "\n");
+            Console.WriteLine("\nArtist: " + art.ArtistName);
+            if(album == null)
+            {
+                foreach (Album alb in art.ReturnAlbums())
+                {
+                    Console.WriteLine(" Album: " + alb.AlbumName);
+                }
+            }
+            else
+            {
+                Console.WriteLine(" Album: " + album.AlbumName);
+            }
+
         }
 
         static void MenuPrompt()
@@ -277,6 +329,17 @@ namespace Album_Organise___CL
             Console.WriteLine("\nClick Any Key To Return To Menu");
             Console.ReadKey();
             Initialise();
+        }
+
+        static void FixAnomalies()
+        {
+            foreach(Artist art in artistList)
+            {
+                if(art.ReturnAlbums().Count() == 0)
+                {
+                    artistList.Remove(art);
+                }
+            }
         }
     }
 }

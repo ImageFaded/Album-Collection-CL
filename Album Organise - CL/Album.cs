@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Album_Organise___CL
 {
-    class Album
+    /*class Album
     {
         public string ArtistName;
         public string AlbumName;
@@ -16,5 +16,15 @@ namespace Album_Organise___CL
             this.ArtistName = ArtistName;
             this.AlbumName = AlbumName;
         }        
+    }*/
+
+    class Album
+    {
+        public string AlbumName;
+
+        public Album(string AlbumName)
+        {
+            this.AlbumName = AlbumName;
+        }
     }
 }
