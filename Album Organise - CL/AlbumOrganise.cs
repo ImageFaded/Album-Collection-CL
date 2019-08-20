@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -92,7 +93,7 @@ namespace Album_Organise___CL
             //Clear console and prompt user for the name of an Artist
             Console.Clear();
             Console.WriteLine("Type In The Name Of An Artist: ");
-            string input = Console.ReadLine();
+            string input = FormatString(Console.ReadLine());
             //For every artist in the artist list, if there is one that matches the input
             foreach(Artist art in artistList)
             {
@@ -114,7 +115,7 @@ namespace Album_Organise___CL
             //Clear console and prompt user for the name of an Album
             Console.Clear();
             Console.WriteLine("Type In The Name Of An Album: ");
-            string input = Console.ReadLine();            
+            string input = FormatString(Console.ReadLine());            
             //For every artist in the artlist list, if the input is not null
             foreach(Artist art in artistList)
             {
@@ -144,6 +145,7 @@ namespace Album_Organise___CL
             Console.Clear();
             Artist artistStore = null;
             bool inList = false;
+            bool reduntantEntry = false;
             //Prompt user for input of an artist name and album name
             string ArtistName = InputArtist();
             string AlbumName = InputAlbum();
@@ -152,13 +154,30 @@ namespace Album_Organise___CL
             {
                 if(art.ArtistName == ArtistName)
                 {
-                    //Set artist to temporary variable and escape loop
-                    artistStore = art;
-                    inList = true;
-                    break;
+                    //For each album by an artist
+                    foreach(Album alb in art.ReturnAlbums())
+                    {
+                        //If there is already an album with the same name set as a redundant entry
+                        if(alb.AlbumName == AlbumName)
+                        {
+                            reduntantEntry = true;
+                        }
+                    }
+                    if (!reduntantEntry)
+                    {
+                        //Set artist to temporary variable and escape loop
+                        artistStore = art;
+                        inList = true;
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(ArtistName + " - "  + AlbumName + " is already present in list\n");
+                        MenuPrompt();
+                    }
+
                 }
             }
-
             //If already in the list
             if (inList)
             {
@@ -183,7 +202,7 @@ namespace Album_Organise___CL
             Console.Clear();
             string inputArtist;
             Console.WriteLine("Type In The Name Of The Artist: ");
-            inputArtist = Console.ReadLine();
+            inputArtist = FormatString(Console.ReadLine());
             //While the input is blank or null
             while(inputArtist == "" || inputArtist == null)
             {
@@ -204,7 +223,7 @@ namespace Album_Organise___CL
             Console.Clear();
             string inputAlbum;
             Console.WriteLine("Type In The Name Of The Album: ");
-            inputAlbum = Console.ReadLine();
+            inputAlbum = FormatString(Console.ReadLine());
             //While input is blank or null
             while(inputAlbum == "" || inputAlbum == null)
             {
@@ -422,6 +441,13 @@ namespace Album_Organise___CL
         {
             //Return amount of albums Artist has made
             return art.ReturnAlbums().Count();
+        }
+
+        //Sets input string to be in Title Case for storage and searching
+        static string FormatString(string InputString)
+        {
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+            return textInfo.ToTitleCase(InputString);
         }
     }
 }
