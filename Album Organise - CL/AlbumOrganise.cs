@@ -144,11 +144,13 @@ namespace Album_Organise___CL
             //Clears console and creates temporary variables
             Console.Clear();
             Artist artistStore = null;
+            //Album albumType;
             bool inList = false;
             bool reduntantEntry = false;
             //Prompt user for input of an artist name and album name
             string ArtistName = InputArtist();
             string AlbumName = InputAlbum();
+            string AlbumType = InputType();
             //If there is an artist already with the same name in the list
             foreach(Artist art in artistList)
             {
@@ -181,13 +183,49 @@ namespace Album_Organise___CL
             //If already in the list
             if (inList)
             {
-                //Add a new album to the list of the artist
-                artistStore.AddAlbum(new Album(AlbumName));
+                switch (AlbumType)
+                {
+                    case "Cd":
+                    case "Full Length":
+                    case "Full-Length":
+                        artistStore.AddAlbum(new CD(AlbumName));
+                        break;
+                    case "Ep":
+                        artistStore.AddAlbum(new EP(AlbumName));
+                        break;
+                    case "Vinyl":
+                        artistStore.AddAlbum(new Vinyl(AlbumName));
+                        break;
+                    case "Digital":
+                        artistStore.AddAlbum(new Digital(AlbumName));
+                        break;
+                    case "Cassette":
+                        artistStore.AddAlbum(new Cassette(AlbumName));
+                        break;
+                }
             }
             else
             {
-                //Create a new artist and initialise with the album inputted eariler
-                artistList.Add(new Artist(ArtistName, new List<Album> { new Album(AlbumName) }));
+                switch (AlbumType)
+                {
+                    case "Cd":
+                    case "Full Length":
+                    case "Full-Length":
+                        artistList.Add(new Artist(ArtistName, new List<Album> { new CD(AlbumName) }));
+                        break;
+                    case "Ep":
+                        artistList.Add(new Artist(ArtistName, new List<Album> { new EP(AlbumName) }));
+                        break;
+                    case "Vinyl":
+                        artistList.Add(new Artist(ArtistName, new List<Album> { new Vinyl(AlbumName) }));
+                        break;
+                    case "Digital":
+                        artistList.Add(new Artist(ArtistName, new List<Album> { new Digital(AlbumName) }));
+                        break;
+                    case "Cassette":
+                        artistList.Add(new Artist(ArtistName, new List<Album> { new Cassette(AlbumName) }));
+                        break;
+                }
             }
             //Sorts artist list where needed and saves information to JSON, taking user to menu again
             SortArtists();
@@ -235,6 +273,28 @@ namespace Album_Organise___CL
             }
             //Return name of album
             return inputAlbum;
+        }
+
+        //Prompts user to input the type of album
+        static string InputType()
+        {
+            //Clears console and prompts for type of album
+            Console.Clear();
+            string inputType;
+            Console.WriteLine("Type In The Type Of Album: ");
+            inputType = FormatString(Console.ReadLine().ToLower());
+            //While input is blank or null
+            while (inputType == "" || inputType == null || WordCheck(FormatString(inputType)))
+            {
+                //Reprompt user to input information correctly
+                Console.Clear();
+                Console.WriteLine("Type In The Type Of Album: \n");
+                Console.WriteLine("Previous Input Erroneous: Please Enter Again");
+                Console.WriteLine(inputType);
+                inputType = Console.ReadLine();
+            }
+            //Return name of album
+            return inputType;
         }
 
         //Removes album from list
@@ -372,6 +432,11 @@ namespace Album_Organise___CL
         {
             //Clear the console
             Console.Clear();
+            int CDCount = 0;
+            int EPCount = 0;
+            int VinylCount = 0;
+            int DigitalCount = 0;
+            int CassetteCount = 0;
             //For every artist that isnt null in artist list
             foreach(Artist art in artistList)
             {
@@ -384,11 +449,33 @@ namespace Album_Organise___CL
                     {
                         //Write all the albums to the console
                         //NOTE - Space at start of album is to make the Artist/Album Text Distinct
-                        Console.WriteLine(" Album: " + album.AlbumName);
+                        Console.WriteLine(" Album: " + album.AlbumName + " Format: " + album.AlbumFormat);
+
+                        switch (album.AlbumFormat)
+                        {
+                            case "CD":
+                                CDCount++;
+                                break;
+                            case "EP":
+                                EPCount++;
+                                break;
+                            case "Vinyl":
+                                VinylCount++;
+                                break;
+                            case "Digital":
+                                DigitalCount++;
+                                break;
+                            case "Cassette":
+                                CassetteCount++;
+                                break;
+                        }
                     }
                     Console.Write("\n");
                 }
+                
             }
+            Console.WriteLine("CD Count: {0}\nEP Count:{1}\nVinyl Count:{2}\nDigital Count:{3}\nCassette Count:{4}",CDCount,EPCount,VinylCount,DigitalCount,CassetteCount);
+            
             //Return To Main Menu
             MenuPrompt();
             Initialise();
@@ -448,6 +535,24 @@ namespace Album_Organise___CL
         {
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
             return textInfo.ToTitleCase(InputString);
+        }
+
+        //Checks if Album Type is valid
+        static bool WordCheck(string input)
+        {
+            switch (input)
+            {
+                case "Cd":
+                case "Ep":
+                case "Full-Length":
+                case "Full Length":
+                case "Vinyl":
+                case "Cassette":
+                case "Digital":
+                    return false;
+                default:
+                    return true;              
+            }
         }
     }
 }

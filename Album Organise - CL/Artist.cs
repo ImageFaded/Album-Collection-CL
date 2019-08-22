@@ -25,7 +25,7 @@ namespace Album_Organise___CL
         //Sorts albums into an alphabetical order
         public void SortAlbums()
         {
-            albums.Sort(delegate (Album a1, Album a2) { return a1.AlbumName.CompareTo(a2.AlbumName); });
+            albums.Sort(delegate(Album a1, Album a2) { return a1.AlbumName.CompareTo(a2.AlbumName); });
         }       
 
         //Adds new album to list of albums
